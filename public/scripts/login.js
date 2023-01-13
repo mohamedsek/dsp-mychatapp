@@ -12,22 +12,38 @@ let hashpassword = document.getElementById('hashpassword')
 
 form.addEventListener('submit', function (e) {
     e.preventDefault()
-    data = []
+    let data = {
+        email:email.value,
+        hashpassword:hashpassword.value
+    }
+    /*
     var emailKey = encodeURIComponent(email);
     var emailValue = encodeURIComponent(email.value);
     data.push(emailKey + "=" + emailValue);
     var hashpasswordKey = encodeURIComponent(hashpassword);
     var hashpasswordValue = encodeURIComponent(hashpassword.value);
     data.push(hashpasswordKey + "=" + hashpasswordValue);
+
+     */
     //const formData = new FormData(document.querySelector('form'));
     console.log(data)
-    fetch('/login', {
+    fetch('http://localhost:3001/login', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'Content-Type': 'application/json'
         },
-        body: data
+        body: JSON.stringify(data)
+
+        } )
+    .then(response => response.json())
+    .then(data => {
+        console.log('Success:', data);
+        if (data.error === false) {
+            localStorage.setItem('jwt', data.message);
+            window.location.href = "/"
+        }
     })
+
 
     /* console.log(">>>>>>>>>> we're past default behaviour")
     if (email.value && hashpassword.value) {

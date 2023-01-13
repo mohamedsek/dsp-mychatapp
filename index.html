@@ -70,7 +70,13 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-    var socket = io();
+
+    // plain object
+    const socket = io({
+        auth: {
+            token: window.localStorage.getItem('jwt')
+        }
+    });
 
     var messages = document.getElementById('messages');
     var form = document.getElementById('form');
@@ -84,6 +90,9 @@
             input.value = '';
         }
     });
+
+    console.log(socket);
+
 
     socket.on('chat message', function (msg) {
         console.log('message received')

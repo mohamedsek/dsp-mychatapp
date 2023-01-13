@@ -11,6 +11,8 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 const MessageController = require('./controllers/MessagesController')
+const jwt = require("jsonwebtoken");
+const {decode} = require("jsonwebtoken");
 
 
 
@@ -35,6 +37,23 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
+io.use((socket, next) => {
+  const token = socket.handshake.auth.token;
+
+  if(token) {
+
+    jwt.verify(token, process.env.PRIVATE_KEY, function(err, decoded) {
+
+      if (err) return next(new Error('Authentication error'));
+      socket.decoded = decoded;
+      next();
+    })
+  } else {
+    console.log("refused")
+  }
+});
+
+
 io.on('connection', async (socket) => {
   try {
     let Messages = await MessageController.getMessages({})
@@ -44,11 +63,34 @@ io.on('connection', async (socket) => {
 
     io.emit('chat message', Messages);
   } catch (error) {
-    
+
   }
 
-  socket.on('chat message', (msg) => {
-    io.emit('chat message', msg);
+  socket.on('chat message', (id,msg) => {
+
+    console.log(id, msg)
+
+    // check if socket.decoded.exp --> est dans le passé ;
+    // Si dans le passé :
+    // créer un evenement
+    //currentSocketID = io.socket.connected["socketid"];
+    //console.log(currentSocketID)
+    // io.to(currentSocketID).emit('disconnect', "byebye");
+
+    const token = socket.handshake.auth.token;
+    console.log(token)
+    jwt.verify(token,process.env.PRIVATE_KEY, function(err, decoded) {
+      console.log("here")
+      if (err) {
+        socket.to(id).disconnect(true);
+        console.log("err")
+      } else {
+        console.log(msg)
+        io.emit('chat message', msg);
+        console.log("work")
+      }
+    })
+
   });
 });
 

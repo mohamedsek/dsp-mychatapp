@@ -14,7 +14,7 @@ exports.login = async (req, res, next) => {
 
                 token = jwt.sign({ email: User.email }, process.env.PRIVATE_KEY, { expiresIn: 60 * 60 })
                 res.status(200).json({message: token, error: false});
-            
+
         }else{
             res.status(401).json({message: 'user not found', error: true})
         }
@@ -26,7 +26,7 @@ exports.login = async (req, res, next) => {
 
 exports.loginPage = async (req, res, next) => {
     try {
-        res.sendFile('C:/WORKDIR/dsp-chat-app/public/login.html').type('html')
+        res.sendFile('C:\\dev\\formation\\nodejs\\dsp-mychatapp\\public\\login.html').type('html')
     } catch (err) {
 
     }
